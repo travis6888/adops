@@ -6,7 +6,7 @@ from django.contrib import admin
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'adops.views.home', name='home'),
-    url(r'^/$', 'optimize.views.home', name='home'),
+    url(r'^$', 'optimize.views.home', name='home'),
     url(r'^admin/', include(admin.site.urls)),
 )
 if settings.DEBUG:
