@@ -13,8 +13,14 @@ def home(request):
         aString = open('optimize/adopstest.xls','rb').read()
         workbook = xlrd.open_workbook('optimize/adopstest.xls')
             # xlrd.open_workbook(file_contents=aString)
-        for worksheet in workbook.sheets():
-            print worksheet.nrows
+        worksheet = workbook.sheet_by_name('Sheet1')
+        num_rows = worksheet.nrows-1
+        curr_row = -1
+        while curr_row < num_rows:
+            curr_row += 1
+            row = worksheet.row(curr_row)
+            print row
+            # print worksheet.row(34)
 
     # f = open('adcoloredreportdjango.csv', 'r')
     # for line in f:
