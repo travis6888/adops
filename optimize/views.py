@@ -9,18 +9,6 @@ import xlrd
 
 
 def home(request):
-    # xl = pandas.ExcelFile('optimize/adopstest.xls')
-    # # print xl.sheet_names
-    #
-    # df = xl.parse("Sheet1", )
-    # print df
-    # df["desired"] = df["10"] == 0
-    #     # if x == 0:
-    #     #     print "no"
-    #     # else:
-    #     #     print "yes"
-    # print df
-
     # print df
     with open('optimize/adopstest.xls','rb') as f:
         print xlrd.open_workbook(file_contents=mmap(f.fileno(),0,access=ACCESS_READ))
@@ -32,31 +20,17 @@ def home(request):
         curr_row = -1
         while curr_row < num_rows:
             row = worksheet.row(curr_row)
-            row_val = worksheet.row_values(curr_row, 9, 10)
-            print row_val[0]
-            if row_val[0] > 0:
-                print "yes"
+            row_val = worksheet.row_values(curr_row, 0,None)
+            # print row_val[9]
+            if row_val[10] > 0:
+                print "impressions", row_val[10]
+                if row_val[9] > 0:
+                    print "yes clicks and impressions"
+                else:
+                    print " impressions and no clicks"
 
             else:
                 print "no"
-
-            # print row
-            # if row > 0:
-            #     print "yes"
-            # else:
-            #     print "no"
             curr_row += 1
-            # print row
-            # print worksheet.row(34)
-
-    # f = open('adcoloredreportdjango.csv', 'r')
-    # for line in f:
-    #     line =  line.split(',')
-    #     product = Product()
-    # with open(path) as f:
-    #     reader = csv.reader(f)
-    #     for row in reader:
-    #         print row
-
 
     return render(request, 'home.html')
