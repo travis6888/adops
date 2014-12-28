@@ -1,4 +1,7 @@
+from fileinput import filename
+from django.conf import settings
 import xlrd
+# from adops import settings
 
 __author__ = 'Travis'
 
@@ -20,3 +23,10 @@ def xls_proc_text(cell, value_proc=None, text_proc=None):
     if cell.ctype == xlrd.XL_CELL_ERROR:
         # Apply no proc on this.
         return xlrd.error_text_from_code[cell.value]
+
+
+def handle_uploaded_file(f, name_file):
+
+    with open(settings.MEDIA_ROOT + '{}.xls'.format(name_file), 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
