@@ -1,3 +1,4 @@
+from StdSuites import cell
 import csv
 from mmap import mmap, ACCESS_READ
 from sys import path
@@ -21,16 +22,29 @@ def home(request):
         while curr_row < num_rows:
             row = worksheet.row(curr_row)
             row_val = worksheet.row_values(curr_row, 0,None)
+            row_types = worksheet.row_types(curr_row, 0, None)
             # print row_val[9]
             if row_val[10] > 0:
-                print "impressions", row_val[10]
+                print "impressions", row_val[10], curr_row, row_val[16]
                 if row_val[9] > 0:
                     print "yes clicks and impressions"
                 else:
                     print " impressions and no clicks"
 
+
             else:
-                print "no"
+                if row_types[16] == 5:
+                    print "this is error"
+                else:
+                    print row_val[16]
+                # print row_types[16]
+                # print cell(curr_row,row_val[16])
+                # print "no"
+                # print row_val[16]
             curr_row += 1
 
+
+
     return render(request, 'home.html')
+
+
