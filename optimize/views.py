@@ -32,10 +32,19 @@ def home(request):
         curr_row = -1
         while curr_row < num_rows:
             row = worksheet.row(curr_row)
-            if row > 0:
+            row_val = worksheet.row_values(curr_row, 9, 10)
+            print row_val[0]
+            if row_val[0] > 0:
                 print "yes"
+
             else:
                 print "no"
+
+            # print row
+            # if row > 0:
+            #     print "yes"
+            # else:
+            #     print "no"
             curr_row += 1
             # print row
             # print worksheet.row(34)
