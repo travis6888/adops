@@ -2,11 +2,13 @@ from StdSuites import cell
 import csv
 from mmap import mmap, ACCESS_READ
 from sys import path
-from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect, render_to_response
 
 # Create your views here.
 from pandas import ExcelFile, pandas
 import xlrd
+from optimize.forms import FileForm
 
 
 def home(request):
@@ -46,8 +48,19 @@ def home(request):
                 # print row_val[16]
             curr_row += 1
 
-
-
     return render(request, 'home.html')
+
+
+def file_upload(request):
+    if request.method == 'POST':
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            print "yes"
+            # handle_uploaded_file(request.FILES['file'])
+            # return HttpResponseRedirect('/home/')
+    else:
+
+        form = FileForm
+    return render(request, 'upload.html', {'form': form})
 
 
