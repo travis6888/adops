@@ -4,7 +4,7 @@
 <h3> Upload excel files only!</h3>
     <form enctype="multipart/form-data" method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.as_table }}
 
         <input type="submit" value="Submit">
     </form>

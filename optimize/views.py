@@ -1,13 +1,7 @@
-from StdSuites import cell
-import csv
-from mmap import mmap, ACCESS_READ
-from sys import path
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, render_to_response
 
-# Create your views here.
-from pandas import ExcelFile, pandas
-import xlrd
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+
 from optimize.forms import FileForm
 from optimize.utils import handle_uploaded_file, open_file_sort
 
