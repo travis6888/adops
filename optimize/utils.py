@@ -1,8 +1,10 @@
 from fileinput import filename
 from mmap import mmap, ACCESS_READ
+import os
 from django.conf import settings
 import xlrd
 # from adops import settings
+from adops.settings import PROJECT_ROOT
 
 __author__ = 'Travis'
 
@@ -33,13 +35,12 @@ def handle_uploaded_file(f, name_file):
             destination.write(chunk)
 
 
-def open_file_sort(sheet, impressions):
-    with open('optimize/adopstest.xls','rb') as f:
-        print xlrd.open_workbook(file_contents=mmap(f.fileno(),0,access=ACCESS_READ))
-        aString = open('optimize/adopstest.xls','rb').read()
-        workbook = xlrd.open_workbook('optimize/adopstest.xls')
-            # xlrd.open_workbook(file_contents=aString)
-        worksheet = workbook.sheet_by_index(sheet)
+def open_file_sort(sheet, impressions, clicks, name):
+    file_dir = (os.path.join(PROJECT_ROOT, "static",name))
+    with open(file_dir,'rb') as f:
+        workbook = xlrd.open_workbook(file_dir)
+        sheet_num = (sheet - 1)
+        worksheet = workbook.sheet_by_index(sheet_num)
         num_rows = worksheet.nrows-1
         curr_row = -1
         while curr_row < num_rows:
@@ -49,7 +50,7 @@ def open_file_sort(sheet, impressions):
             # print row_val[9]
             if row_val[10] > impressions:
                 print "impressions", row_val[10], curr_row
-                if row_val[9] > 0:
+                if row_val[9] > clicks:
                     print "yes clicks and impressions"
                     if row_types[16] == 5:
                         print "click, impressions but no su"

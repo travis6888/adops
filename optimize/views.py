@@ -13,6 +13,7 @@ from optimize.utils import handle_uploaded_file, open_file_sort
 
 
 def home(request):
+
     return render(request, 'home.html')
 
 
@@ -25,7 +26,8 @@ def file_upload(request):
             sheet = form.cleaned_data['sheet_num']
             impressions = form.cleaned_data['impressions']
             clicks = form.cleaned_data['click']
-            open_file_sort(sheet, impressions)
+            name = "media{}{}".format(form.cleaned_data['name'], ".xls")
+            open_file_sort(sheet, impressions, clicks, name)
             return HttpResponseRedirect('/home/')
     else:
 
