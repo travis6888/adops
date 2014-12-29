@@ -59,7 +59,7 @@ def file_upload(request):
             print "yes"
             handle_uploaded_file(request.FILES['file'], name_file=form.cleaned_data['name'])
             print form.cleaned_data['sheet_num']
-            # return HttpResponseRedirect('/home/')
+            return HttpResponseRedirect('/home/')
     else:
 
         form = FileForm
