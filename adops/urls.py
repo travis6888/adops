@@ -7,6 +7,8 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'adops.views.home', name='home'),
     url(r'^$', 'optimize.views.home', name='home'),
+    url(r'^home/$', 'optimize.views.home', name='home'),
+
     url(r'upload/$', 'optimize.views.file_upload', name='file_upload'),
     url(r'^admin/', include(admin.site.urls)),
 )

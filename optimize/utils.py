@@ -33,13 +33,13 @@ def handle_uploaded_file(f, name_file):
             destination.write(chunk)
 
 
-def open_file_sort():
+def open_file_sort(sheet, impressions):
     with open('optimize/adopstest.xls','rb') as f:
         print xlrd.open_workbook(file_contents=mmap(f.fileno(),0,access=ACCESS_READ))
         aString = open('optimize/adopstest.xls','rb').read()
         workbook = xlrd.open_workbook('optimize/adopstest.xls')
             # xlrd.open_workbook(file_contents=aString)
-        worksheet = workbook.sheet_by_index(0)
+        worksheet = workbook.sheet_by_index(sheet)
         num_rows = worksheet.nrows-1
         curr_row = -1
         while curr_row < num_rows:
@@ -47,7 +47,7 @@ def open_file_sort():
             row_val = worksheet.row_values(curr_row, 0,None)
             row_types = worksheet.row_types(curr_row, 0, None)
             # print row_val[9]
-            if row_val[10] > 0:
+            if row_val[10] > impressions:
                 print "impressions", row_val[10], curr_row
                 if row_val[9] > 0:
                     print "yes clicks and impressions"

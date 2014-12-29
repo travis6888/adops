@@ -8,7 +8,7 @@ class FileForm(forms.Form):
     file = forms.FileField()
     sheet_num = forms.IntegerField()
     ctr = forms.DecimalField()
-    clicks = forms.IntegerField()
+    click = forms.IntegerField()
     su_to_imp = forms.DecimalField()
     impressions = forms.IntegerField()
     su = forms.IntegerField()
