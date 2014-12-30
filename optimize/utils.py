@@ -36,9 +36,8 @@ def handle_uploaded_file(f, name_file):
             destination.write(chunk)
 
 
-def create_excel(row_val, curr_row, num_rows, worksheet, data):
-    wb = Workbook()
-    ws = wb.add_sheet('Type examples')
+def create_excel(row_val, curr_row, num_rows, worksheet, ws, wb):
+
     rows = 0
     # for x in data:
     # row_val = worksheet.row_values(curr_rows, 0, None)
@@ -47,7 +46,7 @@ def create_excel(row_val, curr_row, num_rows, worksheet, data):
     #     print curr_rows
     #     curr_rows += 1
     # print curr_row
-    print data
+    # print data
     ws.row(curr_row).write(0,u'{}'.format("text"))
     ws.row(curr_row).write(1, row_val[10])
     # ws.row(0).write(2, row_val[11])
@@ -68,7 +67,9 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
         sheet_num = (sheet - 1)
         worksheet = workbook.sheet_by_index(sheet_num)
         num_rows = worksheet.nrows-1
-        curr_row = -1
+        wb = Workbook()
+        ws = wb.add_sheet('Type examples', cell_overwrite_ok=True)
+        curr_row = 0
         curr_rows = 0
         # data = []
         while curr_row < num_rows:
@@ -78,34 +79,32 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
             # data.append(row_val)
             # print row_val[9]
             if row_val[imp_loc] > impressions:
-                # print "impressions", row_val[10], curr_row
-                # if row_val[clicks_loc] > clicks:
-                #     create_excel(row_val, curr_rows, num_rows, worksheet)
-                #
-                #     # print "yes clicks and impressions"
-                #     if row_types[su] == 5:
-                #         create_excel(row_val, curr_rows, num_rows, worksheet)
-                #         # print "click, impressions but no su"
-                #     elif row_val[su_loc] > su:
-                #         create_excel(row_val, curr_rows, num_rows, worksheet)
-                #
-                #         # print "clicks impressions and signups greater than " + str(su)
-                #     else:
-                #         create_excel(row_val, curr_rows, num_rows, worksheet)
-                #
-                #         # print "su's {}".format(row_val[16]), row_val[10], curr_row
-                # else:
-                create_excel(row_val, curr_row, num_rows, worksheet, data)
+                print "impressions", row_val[10], curr_row
+                if row_val[clicks_loc] > clicks:
+                    create_excel(row_val, curr_row, num_rows, worksheet, ws, wb)
+
+                    # print "yes clicks and impressions"
+                    if row_types[su] == 5:
+                        create_excel(row_val, curr_row, num_rows, worksheet, ws, wb)
+                        # print "click, impressions but no su"
+                    elif row_val[su_loc] > su:
+                        create_excel(row_val, curr_row, num_rows, worksheet, ws, wb)
+
+                        # print "clicks impressions and signups greater than " + str(su)
+                    else:
+                        create_excel(row_val, curr_row, num_rows, worksheet, ws, wb)
+
+                        # print "su's {}".format(row_val[16]), row_val[10], curr_row
+                else:
+                    create_excel(row_val, curr_row, num_rows, worksheet, ws, wb)
                 #
                 #     # print " impressions and no clicks"
             else:
                 if row_types[su_loc] == 5:
-                    pass
-                    # create_excel(row_val, curr_rows, num_rows, worksheet)
+                    create_excel(row_val, curr_row, num_rows, worksheet, ws, wb)
 
                     # print "this is error"
                 else:
-                    # create_excel(row_val, curr_rows, num_rows, worksheet)
-                    pass
+                    create_excel(row_val, curr_row, num_rows, worksheet, ws, wb)
                     # print row_val[su_loc]
             curr_row += 1
