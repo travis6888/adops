@@ -7,7 +7,7 @@ from optimize.utils import handle_uploaded_file, open_file_sort, create_excel
 
 
 def home(request):
-    create_excel()
+    # create_excel()
     return render(request, 'home.html')
 
 
