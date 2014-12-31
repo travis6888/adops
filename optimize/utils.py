@@ -37,14 +37,13 @@ def handle_uploaded_file(f, name_file):
 
 def check_cell_type(num, row_types, row_value):
     if row_types[num] == 5:
-        print num
         return int(0)
     else:
         return row_value[num]
 
 
-def create_excel(row_val, curr_row, num_rows, worksheet, ws, wb, row_types):
-    ws.row(curr_row).write(0, u'{}'.format("text"))
+def create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types):
+    ws.row(curr_row).write(0, u'{}'.format(text))
     ws.row(curr_row).write(1, check_cell_type(0, row_types, row_val))
     ws.row(curr_row).write(2, check_cell_type(1, row_types, row_val))
     ws.row(curr_row).write(3, check_cell_type(2, row_types, row_val))
@@ -94,31 +93,38 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
             if row_val[imp_loc] > impressions:
                 print "impressions", row_val[10], curr_row
                 if row_val[clicks_loc] > clicks:
-                    create_excel(row_val, curr_row, num_rows, worksheet, ws, wb, row_types)
+                    text = "clicks"
+                    create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
 
                     # print "yes clicks and impressions"
-                    if row_types[su] == 5:
-                        create_excel(row_val, curr_row, num_rows, worksheet, ws, wb, row_types)
+                    if row_types[su_loc] == 5:
+                        text = "no signups"
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                         # print "click, impressions but no su"
-                    elif row_val[su_loc] > su:
-                        create_excel(row_val, curr_row, num_rows, worksheet, ws, wb, row_types)
+                    elif row_val[su_loc] >= su:
+                        text= "signups more than " + str(su)
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
 
                         # print "clicks impressions and signups greater than " + str(su)
                     else:
-                        create_excel(row_val, curr_row, num_rows, worksheet, ws, wb, row_types)
+                        text = "not enough signups"
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
 
                         # print "su's {}".format(row_val[16]), row_val[10], curr_row
                 else:
-                    create_excel(row_val, curr_row, num_rows, worksheet, ws, wb, row_types)
+                    text = "not enough clicks"
+                    create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                     #
                     # # print " impressions and no clicks"
             else:
                 if row_types[su_loc] == 5:
-                    create_excel(row_val, curr_row, num_rows, worksheet, ws, wb, row_types)
+                    text = "no signups"
+                    create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
 
                     # print "this is error"
                 else:
-                    create_excel(row_val, curr_row, num_rows, worksheet, ws, wb, row_types)
+                    text = "signups but too low impressions"
+                    create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                     # print row_val[su_loc]
             curr_row += 1
             wb.save('types.xls')
