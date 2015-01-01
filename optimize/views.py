@@ -1,4 +1,4 @@
-
+import datetime
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
@@ -8,6 +8,8 @@ from optimize.utils import handle_uploaded_file, open_file_sort, create_excel
 
 def home(request):
     # create_excel()
+    # date = datetime.datetime.now()
+    # print ("dd_mm_yyyy format =  %s_%s_%s" % (date.day, date.month, date.year))
     return render(request, 'home.html')
 
 

@@ -1,6 +1,7 @@
 from fileinput import filename
 from mmap import mmap, ACCESS_READ
 import os
+import datetime
 from django.conf import settings
 import xlrd
 # from adops import settings
@@ -80,7 +81,7 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
         worksheet = workbook.sheet_by_index(sheet_num)
         num_rows = worksheet.nrows - 1
         wb = Workbook()
-        ws = wb.add_sheet('Type examples', cell_overwrite_ok=True)
+        ws = wb.add_sheet('Ad optimization', cell_overwrite_ok=True)
         curr_row = 0
         curr_rows = 0
         # data = []
@@ -112,7 +113,10 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
                         text = "ad has perferoming CTR but underperforming SU/Imp rate "
                         create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                     elif row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] < ctr and row_types[su_imp_loc] != 5:
-                        text = "ad has underperferoming CTR but performing SU/Imp rate "
+                        text = "ad has underperforming CTR but performing SU/Imp rate "
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
+                    elif row_val[su_imp_loc] <= su_imp and row_val[ctr_loc] <= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad is underperforming"
                         create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                     elif row_types[su_imp_loc] == 5:
                         text = " no su's "
@@ -125,4 +129,6 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
                     text = " not enough signups"
                     create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
             curr_row += 1
-        wb.save('types.xls')
+
+        date = datetime.datetime.now()
+        wb.save('Ad_optimization%s_%s_%s'% (date.day, date.month, date.year)+'.xls')
