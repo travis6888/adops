@@ -125,4 +125,4 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
                     text = " not enough signups"
                     create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
             curr_row += 1
-            wb.save('types.xls')
+        wb.save('types.xls')
