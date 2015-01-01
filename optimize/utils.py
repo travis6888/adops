@@ -114,6 +114,9 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
                     elif row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] < ctr and row_types[su_imp_loc] != 5:
                         text = "ad has underperferoming CTR but performing SU/Imp rate "
                         create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
+                    elif row_types[su_imp_loc] == 5:
+                        text = " no su's "
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                     else:
                         print "error, su's missed something" + str(curr_row)
                         text = " check error"
