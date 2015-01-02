@@ -1,0 +1,1 @@
+web: gunicorn adops.wsgi --log-file -
