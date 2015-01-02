@@ -4,10 +4,10 @@ import os
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 import xlrd
-from adops.settings import PROJECT_ROOT, MEDIA_ROOT
+from adops.settings import MEDIA_ROOT
 
 from optimize.forms import FileForm
-from optimize.utils import handle_uploaded_file, open_file_sort, create_excel
+from optimize.utils import handle_uploaded_file, open_file_sort
 
 
 def home(request):

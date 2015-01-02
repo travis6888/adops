@@ -1,11 +1,7 @@
-from fileinput import filename
-from io import BytesIO
-from mmap import mmap, ACCESS_READ
+
 import os
 import datetime
-from wsgiref.util import FileWrapper
-import StringIO
-import zipfile
+
 from django.conf import settings
 from django.http import HttpResponse
 import xlrd
@@ -158,7 +154,6 @@ def open_file_sort(buffer, sheet, impressions, clicks, name, clicks_loc, imp_loc
         date = datetime.datetime.now()
         new_xl_file = 'Ad_optimization_%s_%s_%s'% (date.day, date.month, date.year)+'.xls'
         xls2 = wb.save(os.path.join(MEDIA_ROOT, new_xl_file))
-        download()
 
         return
         # xls_to_response(xls, new_xl_file)
