@@ -86,6 +86,10 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__fi
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, "static", *MEDIA_URL.strip("/").split("/"))
 
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, "static"),
+#
+# )
 try:
     from local_settings import *
 except ImportError:
@@ -100,12 +104,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Allow all host headers
 ALLOWED_HOSTS = ['*']
-PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-PROJECT_DIR = os.path.join(PROJECT_ROOT,'../adops')
-STATIC_ROOT= os.path.join(PROJECT_DIR,'staticfiles/')
-STATICFILES_DIRS = (
-    os.path.join(PROJECT_ROOT,'static/'),
-)
+
 # Static asset configuration
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
