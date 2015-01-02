@@ -1,33 +1,25 @@
 from fileinput import filename
+from io import BytesIO
 from mmap import mmap, ACCESS_READ
 import os
 import datetime
+from wsgiref.util import FileWrapper
+import StringIO
+import zipfile
 from django.conf import settings
+from django.http import HttpResponse
 import xlrd
 # from adops import settings
 from xlwt import Workbook
-from adops.settings import PROJECT_ROOT
+from adops.settings import PROJECT_ROOT, MEDIA_ROOT
 
 __author__ = 'Travis'
 
-
-def xls_proc_text(cell, value_proc=None, text_proc=None):
-    """Converts the given cell to appropriate text."""
-    """The proc will come in only when the given is value or text."""
-    ttype = cell.ctype
-    if ttype == xlrd.XL_CELL_EMPTY or ttype == xlrd.XL_CELL_TEXT or ttype == xlrd.XL_CELL_BLANK:
-        if text_proc is None:
-            return cell.value
-        else:
-            return text_proc(cell.value)
-    if ttype == xlrd.XL_CELL_NUMBER or ttype == xlrd.XL_CELL_DATE or ttype == xlrd.XL_CELL_BOOLEAN:
-        if value_proc is None:
-            return str(cell.value)
-        else:
-            return str(value_proc(cell.value))
-    if cell.ctype == xlrd.XL_CELL_ERROR:
-        # Apply no proc on this.
-        return xlrd.error_text_from_code[cell.value]
+def xls_to_response(xls, fname):
+    response = HttpResponse(content_type="application/ms-excel")
+    response['Content-Disposition'] = 'attachment; filename=%s' % fname
+    xls.save(response)
+    return response
 
 
 def handle_uploaded_file(f, name_file):
@@ -42,6 +34,19 @@ def check_cell_type(num, row_types, row_value):
     else:
         return row_value[num]
 
+
+# def download():
+#
+#     date = datetime.datetime.now()
+#     new_xl_file = 'Ad_optimization_%s_%s_%s'% (date.day, date.month, date.year)+'.xls'
+#     xls2 = (os.path.join(MEDIA_ROOT, new_xl_file))
+#     with open(xls2, 'rb') as f:
+#         workbook = xlrd.open_workbook(xls2)
+#         print workbook
+#
+#         response = HttpResponse(f, content_type='application/vnd.ms-excel')
+#         response['Content-Disposition'] = 'attachment; filename='+new_xl_file
+#         return response
 
 def create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types):
     ws.row(curr_row).write(0, u'{}'.format(text))
@@ -73,7 +78,7 @@ def create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types):
     return
 
 
-def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, ctr_loc, su_imp, su_imp_loc, su, su_loc):
+def open_file_sort(buffer, sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, ctr_loc, su_imp, su_imp_loc, su, su_loc):
     file_dir = (os.path.join(PROJECT_ROOT, "static", name))
     with open(file_dir, 'rb') as f:
         workbook = xlrd.open_workbook(file_dir)
@@ -110,7 +115,7 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
                         text = "ad is performing"
                         create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                     elif row_val[su_imp_loc] < su_imp and row_val[ctr_loc] >= ctr and row_types[su_imp_loc] != 5:
-                        text = "ad has perferoming CTR but underperforming SU/Imp rate "
+                        text = "ad has underperforming SU/Imp rate but performing CTR "
                         create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                     elif row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] < ctr and row_types[su_imp_loc] != 5:
                         text = "ad has underperforming CTR but performing SU/Imp rate "
@@ -119,16 +124,42 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
                         text = "ad is underperforming"
                         create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                     elif row_types[su_imp_loc] == 5:
-                        text = " no su's "
+                        text = "no su's"
                         create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                     else:
                         print "error, su's missed something" + str(curr_row)
-                        text = " check error"
+                        text = "check error"
                         create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
                 else:
-                    text = " not enough signups"
+                    if row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] >= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad is performing but SU's are less than " + str(su)
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
+                    elif row_val[su_imp_loc] < su_imp and row_val[ctr_loc] >= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad has underperforming SU/Imp rate but performing CTR and SU's are less than " + str(su)
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
+                    elif row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] < ctr and row_types[su_imp_loc] != 5:
+                        text = "ad has underperforming CTR but performing SU/Imp rate and SU's are less than " + str(su)
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
+                    elif row_val[su_imp_loc] <= su_imp and row_val[ctr_loc] <= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad is underperforming"
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
+                    elif row_types[su_imp_loc] == 5:
+                        text = "no su's"
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
+                    else:
+                        print "error, su's missed something" + str(curr_row)
+                        text = "check error"
+                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
+
+                    text = "not enough signups"
                     create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
             curr_row += 1
 
         date = datetime.datetime.now()
-        wb.save('Ad_optimization%s_%s_%s'% (date.day, date.month, date.year)+'.xls')
+        new_xl_file = 'Ad_optimization_%s_%s_%s'% (date.day, date.month, date.year)+'.xls'
+        xls2 = wb.save(os.path.join(MEDIA_ROOT, new_xl_file))
+        download()
+
+        return
+        # xls_to_response(xls, new_xl_file)
+

@@ -1,6 +1,10 @@
 import datetime
-from django.http import HttpResponseRedirect
+from io import BytesIO
+import os
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+import xlrd
+from adops.settings import PROJECT_ROOT, MEDIA_ROOT
 
 from optimize.forms import FileForm
 from optimize.utils import handle_uploaded_file, open_file_sort, create_excel
@@ -33,11 +37,27 @@ def file_upload(request):
 
 
             name = "media{}{}".format(form.cleaned_data['name'], ".xls")
-            open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, ctr_loc, su_imp, su_imp_loc, su, su_loc)
-            return HttpResponseRedirect('/home/')
+            buffer = BytesIO()
+
+            open_file_sort(buffer, sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, ctr_loc, su_imp, su_imp_loc, su, su_loc)
+            return HttpResponseRedirect('/download/')
     else:
 
         form = FileForm
     return render(request, 'upload.html', {'form': form})
 
+
+def download(request):
+
+
+    date = datetime.datetime.now()
+    new_xl_file = 'Ad_optimization_%s_%s_%s'% (date.day, date.month, date.year)+'.xls'
+    xls2 = (os.path.join(MEDIA_ROOT, new_xl_file))
+    with open(xls2, 'rb') as f:
+        workbook = xlrd.open_workbook(xls2)
+        print workbook
+
+        response = HttpResponse(f, content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename='+new_xl_file
+        return response
 
