@@ -1,32 +1,21 @@
-from fileinput import filename
-from mmap import mmap, ACCESS_READ
 import os
+import datetime
+
 from django.conf import settings
+from django.http import HttpResponse
 import xlrd
 # from adops import settings
 from xlwt import Workbook
-from adops.settings import PROJECT_ROOT
+from adops.settings import PROJECT_ROOT, MEDIA_ROOT
 
 __author__ = 'Travis'
 
 
-def xls_proc_text(cell, value_proc=None, text_proc=None):
-    """Converts the given cell to appropriate text."""
-    """The proc will come in only when the given is value or text."""
-    ttype = cell.ctype
-    if ttype == xlrd.XL_CELL_EMPTY or ttype == xlrd.XL_CELL_TEXT or ttype == xlrd.XL_CELL_BLANK:
-        if text_proc is None:
-            return cell.value
-        else:
-            return text_proc(cell.value)
-    if ttype == xlrd.XL_CELL_NUMBER or ttype == xlrd.XL_CELL_DATE or ttype == xlrd.XL_CELL_BOOLEAN:
-        if value_proc is None:
-            return str(cell.value)
-        else:
-            return str(value_proc(cell.value))
-    if cell.ctype == xlrd.XL_CELL_ERROR:
-        # Apply no proc on this.
-        return xlrd.error_text_from_code[cell.value]
+def xls_to_response(xls, fname):
+    response = HttpResponse(content_type="application/ms-excel")
+    response['Content-Disposition'] = 'attachment; filename=%s' % fname
+    xls.save(response)
+    return response
 
 
 def handle_uploaded_file(f, name_file):
@@ -42,7 +31,7 @@ def check_cell_type(num, row_types, row_value):
         return row_value[num]
 
 
-def create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types):
+def create_excel(row_val, curr_row, text, ws, row_types):
     ws.row(curr_row).write(0, u'{}'.format(text))
     ws.row(curr_row).write(1, check_cell_type(0, row_types, row_val))
     ws.row(curr_row).write(2, check_cell_type(1, row_types, row_val))
@@ -68,11 +57,11 @@ def create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types):
     ws.row(curr_row).write(22, check_cell_type(21, row_types, row_val))
     ws.row(curr_row).write(23, check_cell_type(22, row_types, row_val))
     ws.row(curr_row).write(24, check_cell_type(23, row_types, row_val))
-    # # rows +=1
     return
 
 
-def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, ctr_loc, su_imp, su_imp_loc, su, su_loc):
+def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, ctr_loc, su_imp, su_imp_loc, su,
+                   su_loc):
     file_dir = (os.path.join(PROJECT_ROOT, "static", name))
     with open(file_dir, 'rb') as f:
         workbook = xlrd.open_workbook(file_dir)
@@ -80,51 +69,72 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
         worksheet = workbook.sheet_by_index(sheet_num)
         num_rows = worksheet.nrows - 1
         wb = Workbook()
-        ws = wb.add_sheet('Type examples', cell_overwrite_ok=True)
+        ws = wb.add_sheet('Ad optimization', cell_overwrite_ok=True)
         curr_row = 0
-        curr_rows = 0
-        # data = []
         while curr_row < num_rows:
-            row = worksheet.row(curr_row)
             row_val = worksheet.row_values(curr_row, 0, None)
             row_types = worksheet.row_types(curr_row, 0, None)
-            # data.append(row_val)
-            # print row_val[9]
-            if row_val[imp_loc] > impressions:
-                print "impressions", row_val[10], curr_row
-                if row_val[clicks_loc] > clicks:
-                    text = "clicks"
-                    create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
-
-                    # print "yes clicks and impressions"
-                    if row_types[su_loc] == 5:
-                        text = "no signups"
-                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
-                        # print "click, impressions but no su"
-                    elif row_val[su_loc] >= su:
-                        text= "signups more than " + str(su)
-                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
-
-                        # print "clicks impressions and signups greater than " + str(su)
-                    else:
-                        text = "not enough signups"
-                        create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
-
-                        # print "su's {}".format(row_val[16]), row_val[10], curr_row
+            # need to add su_imp error check
+            if row_types[su_loc] == 5:
+                if row_val[imp_loc] >= impressions and row_val[clicks_loc] >= clicks:
+                    text = "no signups, impressions more than " + str(impressions) + " and clicks GT " + str(clicks)
+                    create_excel(row_val, curr_row, text, ws, row_types)
+                elif row_val[imp_loc] >= impressions:
+                    text = "no signups, impressions more than " + str(impressions)
+                    create_excel(row_val, curr_row, text, ws, row_types)
+                elif row_val[clicks_loc] >= clicks:
+                    text = "no signups, clicks GT " + str(clicks)
+                    create_excel(row_val, curr_row, text, ws, row_types)
                 else:
-                    text = "not enough clicks"
-                    create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
-                    #
-                    # # print " impressions and no clicks"
+                    text = "not enough impressions or clicks "
+                    create_excel(row_val, curr_row, text, ws, row_types)
             else:
-                if row_types[su_loc] == 5:
-                    text = "no signups"
-                    create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
-
-                    # print "this is error"
+                if row_val[su_loc] >= su:
+                    if row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] >= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad is performing"
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    elif row_val[su_imp_loc] < su_imp and row_val[ctr_loc] >= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad has underperforming SU/Imp rate but performing CTR "
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    elif row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] < ctr and row_types[su_imp_loc] != 5:
+                        text = "ad has underperforming CTR but performing SU/Imp rate "
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    elif row_val[su_imp_loc] <= su_imp and row_val[ctr_loc] <= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad is underperforming"
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    elif row_types[su_imp_loc] == 5:
+                        text = "no su's"
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    else:
+                        print "error, su's missed something" + str(curr_row)
+                        text = "check error"
+                        create_excel(row_val, curr_row, text, ws, row_types)
                 else:
-                    text = "signups but too low impressions"
-                    create_excel(row_val, curr_row, num_rows, text, ws, wb, row_types)
-                    # print row_val[su_loc]
+                    if row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] >= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad is performing but SU's are less than " + str(su)
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    elif row_val[su_imp_loc] < su_imp and row_val[ctr_loc] >= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad has underperforming SU/Imp rate but performing CTR and SU's are less than " + str(su)
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    elif row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] < ctr and row_types[su_imp_loc] != 5:
+                        text = "ad has underperforming CTR but performing SU/Imp rate and SU's are less than " + str(su)
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    elif row_val[su_imp_loc] <= su_imp and row_val[ctr_loc] <= ctr and row_types[su_imp_loc] != 5:
+                        text = "ad is underperforming"
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    elif row_types[su_imp_loc] == 5:
+                        text = "no su's"
+                        create_excel(row_val, curr_row, text, ws, row_types)
+                    else:
+                        print "error, su's missed something" + str(curr_row)
+                        text = "check error"
+                        create_excel(row_val, curr_row, text, ws, row_types)
+
+                    text = "not enough signups"
+                    create_excel(row_val, curr_row, text, ws, row_types)
             curr_row += 1
-            wb.save('types.xls')
+        date = datetime.datetime.now()
+        new_xl_file = 'Ad_optimization_%s_%s_%s' % (date.day, date.month, date.year) + '.xls'
+        wb.save(os.path.join(MEDIA_ROOT, new_xl_file))
+        return
+

@@ -1,0 +1,28 @@
+
+/*.directionsText p{*/
+    /*text-align: center;*/
+/*}*/
+h1{
+    background-color: inherit;
+}
+ui li{
+
+}
+body{
+    background-color: lightgray;
+    text-align: center;
+}
+body input, input[type=file]{
+    display: inline-block;
+    min-width: 150px;
+}
+
+.postForm{
+    margin: 150px;
+}
+.postForm input{
+    min-width: 260px;
+}
+.directionsText{
+    margin-top: 150px;
+}
