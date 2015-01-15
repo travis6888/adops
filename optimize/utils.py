@@ -91,7 +91,7 @@ def open_file_sort(sheet, impressions, clicks, name, clicks_loc, imp_loc, ctr, c
             else:
                 if row_val[su_loc] >= su:
                     if row_val[su_imp_loc] >= su_imp and row_val[ctr_loc] >= ctr and row_types[su_imp_loc] != 5:
-                        text = "ad is performing"
+                        text = "ad has su's gt"+ str(su)+ "and su/imp gt "+str(su_imp)+"and ctr gt "+ str(ctr)
                         create_excel(row_val, curr_row, text, ws, row_types)
                     elif row_val[su_imp_loc] < su_imp and row_val[ctr_loc] >= ctr and row_types[su_imp_loc] != 5:
                         text = "ad has underperforming SU/Imp rate but performing CTR "
